@@ -7,9 +7,9 @@ app = Flask(__name__)
 
 MONGODB_HOST = 'localhost'
 MONGODB_PORT = 27017
-DBS_NAME = 'manu'
+DBS_NAME = 'livmanu'
 COLLECTION_NAME = 'data'
-FIELDS = {'Season': True, 'OverallPosition': True, '_id': False}
+FIELDS = {'Season': True, 'OverallPosition': True, 'Team': True, '_id': False}
 
 
 @app.route("/")
@@ -17,7 +17,7 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/manu/data")
+@app.route("/livmanu/data")
 def football_data():
     connection = MongoClient(MONGODB_HOST, MONGODB_PORT)
     collection = connection[DBS_NAME][COLLECTION_NAME]
