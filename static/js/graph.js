@@ -28,8 +28,19 @@ function makeGraphs(error, liv_results, manu_results) {
     var livPosition = livYearDim.group().reduceSum(dc.pluck('OverallPosition'));
     var manuPosition = manuYearDim.group().reduceSum(dc.pluck('OverallPosition'));
 
+    var allLiv = liv.groupAll();
+    var allManu = manu.groupAll();
+
+    //Define values to be used in charts
+    var livMinYear = livYearDim.bottom(1)[0]["Season"];
+    var livMaxDate = livYearDim.top(1)[0]["Season"];
+
     //Charts
     var composite = dc.compositeChart("#time-chart");
+    var livTotalSeasons = dc.numberDisplay("#liv-total-seasons");
+    var manuTotalSeasons = dc.numberDisplay("#manu-total-seasons");
+
+
     var xTicks = d3.format(".0f");
 
     composite
@@ -53,7 +64,19 @@ function makeGraphs(error, liv_results, manu_results) {
         .yAxisLabel("League Position")
         .xAxis().tickFormat(xTicks);
 
+    livTotalSeasons
+       .formatNumber(d3.format("d"))
+       .valueAccessor(function (d) {
+           return d;
+       })
+       .group(allLiv);
 
+    manuTotalSeasons
+       .formatNumber(d3.format("d"))
+       .valueAccessor(function (d) {
+           return d;
+       })
+       .group(allManu);
 
 
     dc.renderAll();
