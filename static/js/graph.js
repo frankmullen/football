@@ -46,7 +46,6 @@ function makeGraphs(error, liv_results, manu_results) {
     composite
         .width(800)
         .height(200)
-        .dimension(livYearDim)
         .margins({top: 10, right: 50, bottom: 30, left: 50})
         .compose([
             dc.lineChart(composite)
