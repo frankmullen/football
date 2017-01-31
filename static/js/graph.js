@@ -1,6 +1,5 @@
 queue()
-    .defer(d3.json, "/liv/data")
-    .defer(d3.json, "/manu/data")
+    .defer(d3.json, "/livmanu/data")
     .await(makeGraphs);
 
 function print_filter(filter){
@@ -10,20 +9,51 @@ function print_filter(filter){
         if (typeof(f.dimension) != "undefined") {f=f.dimension(function(d) { return "";}).top(Infinity);}else{}
         console.log(filter+"("+f.length+") = "+JSON.stringify(f).replace("[","[\n\t").replace(/}\,/g,"},\n\t").replace("]","\n]"));
     }
+/*
+function removeLiv(group) {
+    return {
+        all:function() {
+            return group.all().filter
+        }
+    }
+};
 
-function makeGraphs(error, liv_results, manu_results) {
+function removeManu(group) {
+
+}
+*/
+function makeGraphs(error, json_results) {
 
     //Create a Crossfilter instance
-    var liv = crossfilter(liv_results);
-    var manu = crossfilter(manu_results);
+    var results = crossfilter(json_results);
 
     //Define Dimensions
-    var livYearDim = liv.dimension(function(d) {
+    var yearDim = results.dimension(function(d) {
         return d["Season"];
     });
-    var manuYearDim = manu.dimension(function(d) {
-        return d["Season"];
+
+    print_filter(yearDim);
+
+    var yearDimGroup =  yearDim.group().reduceSum(function(d) {
+        return d["Team"];
     });
+    //print_filter(yearDimGroup);
+
+    var teamDim = results.dimension(function(d) {
+        return d["Team"];
+    });
+    print_filter(teamDim);
+
+    var teamDimManu = teamDim.filter("Manchester");
+
+    print_filter(teamDimManu);
+/*
+    var group = yearDim.group();
+    print_filter(group);
+
+    var manuGroup = removeLiv(group);
+    var livGroup = removeManu(group);
+
 
     var livPosition = livYearDim.group().reduceSum(dc.pluck('OverallPosition'));
     var manuPosition = manuYearDim.group().reduceSum(dc.pluck('OverallPosition'));
@@ -80,5 +110,5 @@ function makeGraphs(error, liv_results, manu_results) {
 
 
     dc.renderAll();
-
+*/
 }
