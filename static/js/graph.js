@@ -27,9 +27,12 @@ function makeGraphs(error, json_results) {
     //Create a Crossfilter instance
     var results = crossfilter(json_results);
 
-    var dim = results.dimension(dc.pluck("Season")),
-        group1 = dim.group().reduceSum(dc.pluck("Liverpool")),
-        group2 = dim.group().reduceSum(dc.pluck("Manchester"));
+    var yearDim = results.dimension(function(d) {
+        return d["Season"];
+    });
+
+    var group1 = yearDim.group().reduceSum(dc.pluck("Liverpool"));
+    var group2 = yearDim.group().reduceSum(dc.pluck("Manchester"));
 
     print_filter(group1);
     print_filter(group2);
