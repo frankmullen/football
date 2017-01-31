@@ -32,8 +32,8 @@ function makeGraphs(error, liv_results, manu_results) {
     var allManu = manu.groupAll();
 
     //Define values to be used in charts
-    var livMinYear = livYearDim.bottom(1)[0]["Season"];
-    var livMaxDate = livYearDim.top(1)[0]["Season"];
+    var minYear = livYearDim.bottom(1)[0]["Season"];
+    var maxYear = livYearDim.top(1)[0]["Season"];
 
     //Charts
     var composite = dc.compositeChart("#time-chart");
@@ -47,21 +47,22 @@ function makeGraphs(error, liv_results, manu_results) {
         .width(800)
         .height(200)
         .margins({top: 10, right: 50, bottom: 30, left: 50})
+        .dimension(livYearDim)
+        .brushOn(false)
         .compose([
             dc.lineChart(composite)
-                .dimension(livYearDim)
                 .colors('black')
                 .group(manuPosition, "Manchester United"),
             dc.lineChart(composite)
-                .dimension(livYearDim)
                 .colors('red')
                 .group(livPosition, "Liverpool")
         ])
-        .x(d3.time.scale().domain([1894,2016]))
+        .x(d3.time.scale().domain([minYear,maxYear]))
         .y(d3.scale.linear().domain([44,0]))
         .xAxisLabel("Season")
         .yAxisLabel("League Position")
         .xAxis().tickFormat(xTicks);
+
 
     livTotalSeasons
        .formatNumber(d3.format("d"))
