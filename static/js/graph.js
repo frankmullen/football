@@ -27,98 +27,63 @@ function makeGraphs(error, json_results) {
     //Create a Crossfilter instance
     var results = crossfilter(json_results);
 
-    var yearDim = results.dimension(function(d) {
-        return d["Season"];
-    });
-
-    var group1 = yearDim.group().reduceSum(dc.pluck("Liverpool"));
-    var group2 = yearDim.group().reduceSum(dc.pluck("Manchester"));
-
-    print_filter(group1);
-    print_filter(group2);
-/*
     //Define Dimensions
     var yearDim = results.dimension(function(d) {
         return d["Season"];
     });
 
-    print_filter(yearDim);
-
-    var yearDimGroup =  yearDim.group().reduceSum(function(d) {
-        return d["Team"];
+    var gamesDim = results.dimension(function(d) {
+        return d["Played"];
     });
-    //print_filter(yearDimGroup);
+    print_filter(gamesDim);
 
-    var teamDim = results.dimension(function(d) {
-        return d["Team"];
-    });
-    print_filter(teamDim);
+    var divisionDim = results.dimension(function(d) {
+        return d["Division"]
+    })
 
-    var teamDimManu = teamDim.filter("Manchester");
+    //Calculate Metrics
+    var positions = yearDim.group().reduceSum(dc.pluck('OverallPosition'));
+    var divisionsPlayed = divisionDim.group();
 
-    print_filter(teamDimManu);
-
-    var group = yearDim.group();
-    print_filter(group);
-
-    var manuGroup = removeLiv(group);
-    var livGroup = removeManu(group);
-
-
-    var livPosition = livYearDim.group().reduceSum(dc.pluck('OverallPosition'));
-    var manuPosition = manuYearDim.group().reduceSum(dc.pluck('OverallPosition'));
-
-    var allLiv = liv.groupAll();
-    var allManu = manu.groupAll();
-
-    //Define values to be used in charts
-    var livMinYear = livYearDim.bottom(1)[0]["Season"];
-    var livMaxDate = livYearDim.top(1)[0]["Season"];
+    var all = results.groupAll();
 
     //Charts
-    var composite = dc.compositeChart("#time-chart");
-    var livTotalSeasons = dc.numberDisplay("#liv-total-seasons");
-    var manuTotalSeasons = dc.numberDisplay("#manu-total-seasons");
+    var timeChart = dc.lineChart("#time-chart");
+    var manUtdSeasons = dc.numberDisplay("#manu-total-seasons");
+    var divisionChart = dc.pieChart("#division-chart");
 
 
     var xTicks = d3.format(".0f");
 
-    composite
-        .width(800)
-        .height(200)
-        .dimension(livYearDim)
-        .margins({top: 10, right: 50, bottom: 30, left: 50})
-        .compose([
-            dc.lineChart(composite)
-                .dimension(livYearDim)
-                .colors('black')
-                .group(manuPosition, "Manchester United"),
-            dc.lineChart(composite)
-                .dimension(livYearDim)
-                .colors('red')
-                .group(livPosition, "Liverpool")
-        ])
-        .x(d3.time.scale().domain([1894,2016]))
-        .y(d3.scale.linear().domain([44,0]))
-        .xAxisLabel("Season")
+    timeChart
+       .width(800)
+       .height(200)
+        .brushOn(false)
+       .margins({top: 10, right: 50, bottom: 30, left: 50})
+       .dimension(yearDim)
+       .group(positions)
+       .x(d3.time.scale().domain([1894, 2016]))
+       .y(d3.scale.linear().domain([44,0]))
+       .xAxisLabel("Season")
         .yAxisLabel("League Position")
-        .xAxis().tickFormat(xTicks);
+        .colors("red")
+       .xAxis().tickFormat(xTicks);
 
-    livTotalSeasons
+    manUtdSeasons
        .formatNumber(d3.format("d"))
        .valueAccessor(function (d) {
            return d;
        })
-       .group(allLiv);
+       .group(all);
 
-    manuTotalSeasons
-       .formatNumber(d3.format("d"))
-       .valueAccessor(function (d) {
-           return d;
-       })
-       .group(allManu);
-
+    divisionChart
+        .height(220)
+       .radius(90)
+       .innerRadius(40)
+       .transitionDuration(1500)
+       .dimension(divisionDim)
+       .group(divisionsPlayed);
 
     dc.renderAll();
-*/
+
 }
