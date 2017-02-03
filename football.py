@@ -7,9 +7,9 @@ app = Flask(__name__)
 
 MONGODB_HOST = 'localhost'
 MONGODB_PORT = 27017
-DBS_NAME = 'manu'
+DBS_NAME = 'livmanu'
 COLLECTION_NAME = 'data'
-FIELDS = {'Season': True, 'OverallPosition': True, 'Played': True, 'Won': True, 'Division': True, '_id': False}
+FIELDS = {'Season': True, 'Team': True, 'OverallPosition': True, 'Played': True, 'Won': True, 'Division': True, '_id': False}
 
 
 @app.route("/")
