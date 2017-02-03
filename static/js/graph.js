@@ -1,5 +1,4 @@
 queue()
-    .defer(d3.json, "/liv/data")
     .defer(d3.json, "/manu/data")
     .await(makeGraphs);
 
@@ -11,65 +10,43 @@ function print_filter(filter){
         console.log(filter+"("+f.length+") = "+JSON.stringify(f).replace("[","[\n\t").replace(/}\,/g,"},\n\t").replace("]","\n]"));
     }
 
-function makeGraphs(error, liv_results, manu_results) {
+function makeGraphs(error, manu_results) {
 
     //Create a Crossfilter instance
-    var liv = crossfilter(liv_results);
     var manu = crossfilter(manu_results);
 
     //Define Dimensions
-    var livYearDim = liv.dimension(function(d) {
-        return d["Season"];
-    });
     var manuYearDim = manu.dimension(function(d) {
         return d["Season"];
     });
 
-    var livPosition = livYearDim.group().reduceSum(dc.pluck('OverallPosition'));
     var manuPosition = manuYearDim.group().reduceSum(dc.pluck('OverallPosition'));
 
-    var allLiv = liv.groupAll();
     var allManu = manu.groupAll();
 
     //Define values to be used in charts
-    var minYear = livYearDim.bottom(1)[0]["Season"];
-    var maxYear = livYearDim.top(1)[0]["Season"];
+    var minYear = manuYearDim.bottom(1)[0]["Season"];
+    var maxYear = manuYearDim.top(1)[0]["Season"];
 
     //Charts
-    var composite = dc.compositeChart("#time-chart");
-    var livTotalSeasons = dc.numberDisplay("#liv-total-seasons");
+    var linechart = dc.lineChart("#time-chart");
     var manuTotalSeasons = dc.numberDisplay("#manu-total-seasons");
 
 
     var xTicks = d3.format(".0f");
 
-    composite
+    linechart
         .width(800)
         .height(200)
         .margins({top: 10, right: 50, bottom: 30, left: 50})
-        .dimension(livYearDim)
-        .brushOn(false)
-        .compose([
-            dc.lineChart(composite)
-                .colors('black')
-                .group(manuPosition, "Manchester United"),
-            dc.lineChart(composite)
-                .colors('red')
-                .group(livPosition, "Liverpool")
-        ])
+        .dimension(manuYearDim)
+        .group(manuPosition)
         .x(d3.time.scale().domain([minYear,maxYear]))
         .y(d3.scale.linear().domain([44,0]))
         .xAxisLabel("Season")
         .yAxisLabel("League Position")
         .xAxis().tickFormat(xTicks);
 
-
-    livTotalSeasons
-       .formatNumber(d3.format("d"))
-       .valueAccessor(function (d) {
-           return d;
-       })
-       .group(allLiv);
 
     manuTotalSeasons
        .formatNumber(d3.format("d"))
