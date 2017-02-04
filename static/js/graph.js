@@ -19,16 +19,8 @@ function makeGraphs(error, json_results) {
     var yearDim = results.dimension(function(d) {
         return d["Season"];
     });
-/*
-    var gamesDim = results.dimension(function(d) {
-        return d["Played"];
-    });
 
-
-    var divisionDim = results.dimension(function(d) {
-        return d["Division"]
-    })
-*/
+    //Create group of objects with finishing positions for both teams by year
     var positions = yearDim.group().reduce(
         function(p, v) { // add
             p[v["Team"]] = (p[v["Team"]] || 0) + v["OverallPosition"];
@@ -42,21 +34,17 @@ function makeGraphs(error, json_results) {
             return {};
         });
 
-    print_filter(positions);
+    //Create group of combined goals to use as filtering chart
+    var goals = yearDim.group().
 
-    var all = results.groupAll();
-
-    //Charts
+    //Chart
     var composite = dc.compositeChart("#time-chart");
-    var totalSeasons = dc.numberDisplay("#total-seasons");
 
-
-
+    //Number formatting for x-axis
     var xTicks = d3.format(".0f");
 
-    var names = Array.prototype.slice.call(arguments);
-
-    console.log(names.toString());
+    //Create array of team names
+    var names = json_results.map(function(row) { return row.Team; });
 
     composite
        .width(800)
@@ -69,7 +57,13 @@ function makeGraphs(error, json_results) {
             names.map(function(name) {
                 return dc.lineChart(composite)
                 .dimension(yearDim)
-                .colors('red')
+                .colors(function() {
+                    if (name == "Liverpool") {
+                        return "red";
+                    } else {
+                        return "black";
+                    }
+                })
                 .group(positions)
                 .valueAccessor(function(kv) {
                     return kv.value[name];
@@ -82,13 +76,16 @@ function makeGraphs(error, json_results) {
         .yAxisLabel("League Position")
        .xAxis().tickFormat(xTicks);
 
+    var all = results.groupAll();
+
+    var totalSeasons = dc.numberDisplay("#total-seasons");
+
     totalSeasons
        .formatNumber(d3.format("d"))
        .valueAccessor(function (d) {
            return d;
        })
        .group(all);
-
 
     dc.renderAll();
 
