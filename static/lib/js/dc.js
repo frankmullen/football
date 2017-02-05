@@ -51,7 +51,7 @@ var dc = {
         NODE_INDEX_NAME: '__index__',
         GROUP_INDEX_NAME: '__group_index__',
         DEFAULT_CHART_GROUP: '__default_chart_group__',
-        EVENT_DELAY: 40,
+        EVENT_DELAY: 600,
         NEGLIGIBLE_NUMBER: 1e-10
     },
     _renderlet: null

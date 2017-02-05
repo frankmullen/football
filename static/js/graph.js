@@ -35,10 +35,11 @@ function makeGraphs(error, json_results) {
         });
 
     //Create group of combined goals to use as filtering chart
-    var goals = yearDim.group().
+    var goals = yearDim.group().reduceSum(dc.pluck('For'));
 
     //Chart
     var composite = dc.compositeChart("#time-chart");
+    var volumeChart = dc.lineChart("#volume-chart");
 
     //Number formatting for x-axis
     var xTicks = d3.format(".0f");
@@ -50,6 +51,7 @@ function makeGraphs(error, json_results) {
        .width(800)
        .height(200)
        .margins({top: 10, right: 50, bottom: 30, left: 50})
+        .brushOn(false)
        .x(d3.time.scale().domain([1894, 2016]))
        .y(d3.scale.linear().domain([44,0]))
         .shareTitle(false)
@@ -72,9 +74,30 @@ function makeGraphs(error, json_results) {
                     return name + ' ' + kv.key + ': ' + kv.value;
                 });
         }))
+        .rangeChart(volumeChart)
        .xAxisLabel("Season")
         .yAxisLabel("League Position")
        .xAxis().tickFormat(xTicks);
+/
+// filtering
+    volumeChart
+        .width(800)
+        .height(40)
+        .margins({top: 0, right: 50, bottom: 20, left: 65})
+        .dimension(yearDim)
+        .group(positions)
+       // .rangeChart(stackLinesChart)
+        //.centerBar(true)
+        //.gap(0)
+        .elasticX(true)
+        .x(d3.time.scale().domain([1894, 2016]))
+        //.round(d3.time.month.round)
+        //.xUnits(d3.time.months)
+       /* .renderlet(function (chart) {
+            chart.select("g.y").style("display", "none");
+            composite.filter(chart.filter());
+        })*/
+        .xAxis().tickFormat(xTicks);
 
     var all = results.groupAll();
 
@@ -87,6 +110,7 @@ function makeGraphs(error, json_results) {
        })
        .group(all);
 
-    dc.renderAll();
+    dc.renderAll()
+    dc.redrawAll();
 
 }
